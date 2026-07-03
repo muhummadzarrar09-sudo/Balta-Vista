@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'Pine & Peak Nathiagali — Luxury hill hotel above the pines';
+export const alt = 'Balta Vista Nathiagali — Luxury hill hotel above the pines';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -19,9 +19,9 @@ export default function Image() {
             <div style={{ width: 76, height: 76, borderRadius: 24, border: '1px solid rgba(192,139,62,.42)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(192,139,62,.1)' }}>
               <svg width="46" height="46" viewBox="0 0 48 48"><path d="M6 34 19 11l7 13 5-9 11 19" fill="none" stroke="#c08b3e" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" /><path d="M10 39h28" stroke="#eadcc4" strokeOpacity=".55" strokeWidth="2.6" strokeLinecap="round" /></svg>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}><span style={{ fontFamily: 'Georgia, serif', fontSize: 36, letterSpacing: '-0.03em' }}>Pine & Peak</span><span style={{ color: '#9aaa82', fontSize: 16, letterSpacing: '.28em', textTransform: 'uppercase' }}>Nathiagali, KPK</span></div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}><span style={{ fontFamily: 'Georgia, serif', fontSize: 36, letterSpacing: '-0.03em' }}>Balta Vista</span><span style={{ color: '#9aaa82', fontSize: 16, letterSpacing: '.28em', textTransform: 'uppercase' }}>Nathiagali, KPK</span></div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}><div style={{ color: '#c08b3e', fontSize: 18, letterSpacing: '.28em', textTransform: 'uppercase', marginBottom: 22 }}>Luxury hill hotel preview</div><div style={{ fontFamily: 'Georgia, serif', fontSize: 78, lineHeight: 0.92, letterSpacing: '-0.06em' }}>A quieter kind of luxury above the pines.</div><div style={{ marginTop: 26, color: '#a79a84', fontSize: 26, lineHeight: 1.4 }}>Opening-season MVP for a warm, cinematic mountain retreat in Pakistan.</div></div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}><div style={{ color: '#c08b3e', fontSize: 18, letterSpacing: '.28em', textTransform: 'uppercase', marginBottom: 22 }}>Luxury hill hotel preview</div><div style={{ fontFamily: 'Georgia, serif', fontSize: 78, lineHeight: 0.92, letterSpacing: '-0.06em' }}>A quieter kind of luxury above the pines.</div><div style={{ marginTop: 26, color: '#a79a84', fontSize: 26, lineHeight: 1.4 }}>Opening-season preview for a warm, cinematic mountain retreat in Pakistan.</div></div>
         </div>
       </div>
     ),

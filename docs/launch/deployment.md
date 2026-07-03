@@ -1,4 +1,4 @@
-# Deployment Handoff — Pine & Peak Nathiagali MVP
+# Deployment Handoff — Balta Vista Nathiagali MVP
 
 ## Recommended platform
 
@@ -15,7 +15,9 @@ NEXT_PUBLIC_GOOGLE_MAPS_EMBED_URL=
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY=
 RECAPTCHA_SECRET_KEY=
 BOOKING_WEBHOOK_URL=
+BOOKING_WEBHOOK_SECRET=
 ANALYTICS_WEBHOOK_URL=
+ANALYTICS_WEBHOOK_SECRET=
 FORCE_HTTPS=false
 ```
 

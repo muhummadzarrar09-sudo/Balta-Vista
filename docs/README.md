@@ -19,3 +19,17 @@ This folder keeps handoff, launch, QA, analytics, and security notes out of the 
 ## Analytics
 
 - [`analytics/events.md`](analytics/events.md) — first-party conversion event instrumentation.
+
+## Prototype roadmap
+
+- [`roadmap/prototype-roadmap.md`](roadmap/prototype-roadmap.md) — Alpha, Beta, and Finished Product execution roadmap.
+
+## Assets
+
+- [`assets/beta-asset-manifest.md`](assets/beta-asset-manifest.md) — Beta asset replacement slots, art direction, and intake workflow.
+
+- [`assets/location-map-config.md`](assets/location-map-config.md) — Beta map/location configuration and live embed requirements.
+
+- [`launch/booking-webhook.md`](launch/booking-webhook.md) — signed booking webhook integration for Beta workflows.
+
+- [`qa/beta-device-qa.md`](qa/beta-device-qa.md) — Beta cross-browser/device QA plan and automated smoke scripts.

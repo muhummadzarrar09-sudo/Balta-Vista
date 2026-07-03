@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Pine & Peak Nathiagali',
-    short_name: 'Pine & Peak',
+    name: 'Balta Vista Nathiagali',
+    short_name: 'Balta Vista',
     description: 'Luxury hill hotel opening in Nathiagali, Pakistan.',
     start_url: '/',
     display: 'standalone',

@@ -1,3 +1,4 @@
+import { createHmac } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { eventSchema } from '@/lib/event-schema';
 import { getServerEnv, getSiteUrl } from '@/lib/env';
@@ -15,22 +16,32 @@ function clientIp(req: NextRequest) {
   return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'local';
 }
 
-async function forwardEvent(event: ReturnType<typeof eventSchema.parse>) {
-  const { ANALYTICS_WEBHOOK_URL } = getServerEnv();
-  if (!ANALYTICS_WEBHOOK_URL) return { configured: false, delivered: false };
+function signPayload(payload: string, secret?: string) {
+  if (!secret) return undefined;
+  return createHmac('sha256', secret).update(payload).digest('hex');
+}
 
+async function forwardEvent(event: ReturnType<typeof eventSchema.parse>) {
+  const { ANALYTICS_WEBHOOK_URL, ANALYTICS_WEBHOOK_SECRET } = getServerEnv();
+  if (!ANALYTICS_WEBHOOK_URL) return { configured: false, delivered: false, signed: false };
+
+  const payload = JSON.stringify({ source: 'balta-vista-nathiagali-mvp', siteUrl: getSiteUrl(), event });
+  const signature = signPayload(payload, ANALYTICS_WEBHOOK_SECRET || undefined);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), WEBHOOK_TIMEOUT_MS);
   try {
     const res = await fetch(ANALYTICS_WEBHOOK_URL, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ source: 'pine-peak-nathiagali-mvp', siteUrl: getSiteUrl(), event }),
+      headers: {
+        'content-type': 'application/json',
+        ...(signature ? { 'x-balta-vista-event-signature': signature } : {})
+      },
+      body: payload,
       signal: controller.signal
     });
-    return { configured: true, delivered: res.ok };
+    return { configured: true, delivered: res.ok, signed: Boolean(signature) };
   } catch {
-    return { configured: true, delivered: false };
+    return { configured: true, delivered: false, signed: Boolean(signature) };
   } finally {
     clearTimeout(timeout);
   }

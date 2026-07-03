@@ -31,8 +31,8 @@
   --ink: #0b0d0a;
   --card: #1c2018;
   --radius-card: 28px;
-  --font-display: Georgia, 'Times New Roman', serif;
-  --font-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  --font-body: 'Avenir Next', 'Nunito Sans', ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --mood: #11130f;
 }
 
@@ -47,7 +47,14 @@ body {
   color: var(--stone);
   font-family: var(--font-body);
   overflow-x: hidden;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  text-rendering: geometricPrecision;
 }
+
+.font-serif {
+  letter-spacing: -0.035em;
+}
+
 body::before {
   content: '';
   pointer-events: none;
@@ -85,6 +92,13 @@ section { position: relative; }
   transition: transform 180ms ease;
 }
 .skip-link:focus { transform: translateY(0); }
+
+.stat-number {
+  font-family: ui-rounded, 'SF Pro Rounded', 'Avenir Next', 'Nunito Sans', system-ui, sans-serif;
+  font-weight: 650;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+}
 
 .bg-card-gradient {
   background:

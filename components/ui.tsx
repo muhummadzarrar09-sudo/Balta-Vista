@@ -36,8 +36,19 @@ export function StudioCard({ className, children }: React.PropsWithChildren<{ cl
   return <div className={cn('studio-card rounded-card border border-stone/12 bg-card-gradient p-5 shadow-soft backdrop-blur-sm', className)}>{children}</div>;
 }
 
+export function BrandMark({ className }: { className?: string }) {
+  return (
+    <span className={cn('inline-flex items-center justify-center rounded-[18px] border border-brass/30 bg-brass/10 text-brass', className)} aria-hidden="true">
+      <svg viewBox="0 0 48 48" className="h-[62%] w-[62%]">
+        <path d="M6 34 19 11l7 13 5-9 11 19" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M10 39h28" stroke="currentColor" strokeOpacity=".55" strokeWidth="2.6" strokeLinecap="round" />
+      </svg>
+    </span>
+  );
+}
+
 export function SectionEyebrow({ children }: React.PropsWithChildren) {
-  return <p className="mb-4 text-xs font-semibold uppercase tracking-[0.32em] text-sage">{children}</p>;
+  return <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.32em] text-sage">{children}</p>;
 }
 
 export function SectionTitle({ children, className }: React.PropsWithChildren<{ className?: string }>) {

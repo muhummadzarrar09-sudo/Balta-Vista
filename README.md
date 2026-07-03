@@ -1,4 +1,4 @@
-# Pine & Peak Nathiagali — Luxury Hotel MVP
+# Balta Vista Nathiagali — Luxury Hotel MVP
 
 A full-scale MVP marketing/booking website for a luxury hotel opening in Nathiagali, Pakistan.
 
@@ -54,7 +54,9 @@ NEXT_PUBLIC_GOOGLE_MAPS_EMBED_URL=
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY=
 RECAPTCHA_SECRET_KEY=
 BOOKING_WEBHOOK_URL=
+BOOKING_WEBHOOK_SECRET=
 ANALYTICS_WEBHOOK_URL=
+ANALYTICS_WEBHOOK_SECRET=
 FORCE_HTTPS=false
 ```
 
@@ -88,6 +90,6 @@ Detailed handoff docs now live in [`docs/`](docs/):
 
 The secondary brochure deliverable lives outside the Next.js route tree:
 
-`brochure/pine-peak-brochure.html`
+`brochure/balta-vista-brochure.html`
 
 Open it in a browser and print/export to PDF.

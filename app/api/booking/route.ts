@@ -1,3 +1,4 @@
+import { createHmac } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { bookingSchema, type BookingInput } from '@/lib/booking-schema';
 import { getServerEnv, getSiteUrl } from '@/lib/env';
@@ -22,28 +23,38 @@ function withRateLimitHeaders(res: NextResponse, result: { remaining: number; re
   return res;
 }
 
-async function deliverLead(reference: string, data: BookingInput) {
-  const { BOOKING_WEBHOOK_URL } = getServerEnv();
-  if (!BOOKING_WEBHOOK_URL) return { configured: false, delivered: false };
+function signPayload(payload: string, secret?: string) {
+  if (!secret) return undefined;
+  return createHmac('sha256', secret).update(payload).digest('hex');
+}
 
+async function deliverLead(reference: string, data: BookingInput) {
+  const { BOOKING_WEBHOOK_URL, BOOKING_WEBHOOK_SECRET } = getServerEnv();
+  if (!BOOKING_WEBHOOK_URL) return { configured: false, delivered: false, signed: false };
+
+  const payload = JSON.stringify({
+    reference,
+    source: 'balta-vista-nathiagali-mvp',
+    siteUrl: getSiteUrl(),
+    createdAt: new Date().toISOString(),
+    booking: data
+  });
+  const signature = signPayload(payload, BOOKING_WEBHOOK_SECRET || undefined);
   const controller = new AbortController();
   const timeout = windowlessTimeout(() => controller.abort(), WEBHOOK_TIMEOUT_MS);
   try {
     const res = await fetch(BOOKING_WEBHOOK_URL, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        reference,
-        source: 'pine-peak-nathiagali-mvp',
-        siteUrl: getSiteUrl(),
-        createdAt: new Date().toISOString(),
-        booking: data
-      }),
+      headers: {
+        'content-type': 'application/json',
+        ...(signature ? { 'x-balta-vista-signature': signature } : {})
+      },
+      body: payload,
       signal: controller.signal
     });
-    return { configured: true, delivered: res.ok };
+    return { configured: true, delivered: res.ok, signed: Boolean(signature) };
   } catch {
-    return { configured: true, delivered: false };
+    return { configured: true, delivered: false, signed: Boolean(signature) };
   } finally {
     clearTimeout(timeout);
   }
@@ -77,13 +88,12 @@ export async function POST(req: NextRequest) {
   const safeData = sanitizeBookingPayload(parsed.data);
   if (safeData.companyWebsite) return withRateLimitHeaders(NextResponse.json({ ok: true }), limit);
 
-  const reference = `PP-${Date.now().toString(36).toUpperCase()}`;
+  const reference = `BV-${Date.now().toString(36).toUpperCase()}`;
   const delivery = await deliverLead(reference, safeData);
 
-  // MVP scope: this endpoint validates, sanitizes, origin-checks, size-checks, honeypot-checks, rate-limits,
-  // and optionally forwards the inquiry to a server-side webhook. It does not collect payment or create accounts.
-  // Phase 2/payment note: when payments are added, use Stripe/hosted checkout so this app never handles raw card data.
+  // Prototype scope: this endpoint validates, sanitizes, origin-checks, size-checks, honeypot-checks, rate-limits,
+  // and optionally forwards the inquiry to a signed server-side webhook. It does not collect payment or create accounts.
+  // Future payment note: when payments are added, use Stripe/hosted checkout so this app never handles raw card data.
   // If user accounts or persistent booking records are added, introduce Supabase/Postgres with RLS at that point.
-  // RLS/Postgres-level security is not applicable to this no-auth MVP.
   return withRateLimitHeaders(NextResponse.json({ ok: true, reference, delivery }), limit);
 }
