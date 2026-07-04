@@ -832,9 +832,24 @@ function LoaderAndInit() {
       gsap.to('.scroll-progress-bar', { scaleX: 1, ease: 'none', scrollTrigger: { trigger: document.documentElement, start: 'top top', end: 'bottom bottom', scrub: true } });
     }
 
-    loadAnimations().then(() => setReady(true));
+    loadAnimations()
+      .then(() => setReady(true))
+      .catch(() => {
+        document.querySelector('.brand-loader')?.classList.add('!hidden');
+        document.querySelector('.route-wipe')?.classList.add('!hidden');
+        setReady(true);
+      });
 
-    return () => {};
+    // Safety fallback: force-hide loader after 8s if animations fail
+    const safetyTimer = setTimeout(() => {
+      const loader = document.querySelector('.brand-loader');
+      const wipe = document.querySelector('.route-wipe');
+      if (loader) loader.classList.add('!hidden');
+      if (wipe) wipe.classList.add('!hidden');
+      setReady(true);
+    }, 8000);
+
+    return () => clearTimeout(safetyTimer);
   }, []);
 
   return (
