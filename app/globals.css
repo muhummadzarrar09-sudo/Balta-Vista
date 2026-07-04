@@ -13,8 +13,8 @@
   --font-serif: var(--font-display);
   --font-sans: var(--font-body);
   --radius-card: var(--radius-card);
-  --shadow-soft: 0 28px 80px rgb(0 0 0 / 0.34);
-  --shadow-brass: 0 18px 60px rgb(192 139 62 / 0.22);
+  --shadow-soft: 0 18px 54px rgb(0 0 0 / 0.22);
+  --shadow-brass: 0 14px 42px rgb(192 139 62 / 0.18);
 }
 
 :root {
@@ -30,7 +30,7 @@
   --muted: #a79a84;
   --ink: #0b0d0a;
   --card: #1c2018;
-  --radius-card: 28px;
+  --radius-card: 24px;
   --font-display: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
   --font-body: 'Avenir Next', 'Nunito Sans', ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --mood: #11130f;
@@ -102,8 +102,11 @@ section { position: relative; }
 
 .bg-card-gradient {
   background:
-    linear-gradient(145deg, rgba(234, 220, 196, 0.10), rgba(234, 220, 196, 0.035)),
-    linear-gradient(180deg, rgba(24, 35, 28, 0.96), rgba(17, 19, 15, 0.96));
+    linear-gradient(145deg, rgba(234, 220, 196, 0.075), rgba(234, 220, 196, 0.025)),
+    linear-gradient(180deg, rgba(24, 35, 28, 0.94), rgba(17, 19, 15, 0.95));
+}
+.editorial-surface {
+  box-shadow: inset 0 1px 0 rgba(234, 220, 196, 0.055), 0 12px 42px rgba(0, 0, 0, 0.16);
 }
 .text-balance { text-wrap: balance; }
 .shadow-soft { box-shadow: var(--shadow-soft); }
@@ -134,6 +137,57 @@ section { position: relative; }
 .loader-wipe,
 .route-wipe {
   background: radial-gradient(circle at 50% 45%, rgba(192,139,62,.2), transparent 20rem), var(--charcoal);
+}
+
+
+.brand-loader-mark {
+  position: relative;
+  isolation: isolate;
+}
+.brand-loader-mark::before,
+.brand-loader-mark::after {
+  content: '';
+  position: absolute;
+  inset: -0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(192, 139, 62, 0.22);
+  animation: loader-pulse 1.8s ease-in-out infinite;
+}
+.brand-loader-mark::after {
+  inset: -1.05rem;
+  border-color: rgba(154, 170, 130, 0.16);
+  animation-delay: 0.35s;
+}
+.loader-route-line {
+  width: min(280px, 58vw);
+  height: 1px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(234, 220, 196, 0.12);
+}
+.loader-route-line::after {
+  content: '';
+  display: block;
+  height: 100%;
+  width: 42%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, var(--brass), transparent);
+  animation: loader-route 1.35s ease-in-out infinite;
+}
+.loader-word {
+  animation: loader-word-rise 0.9s ease both;
+}
+@keyframes loader-pulse {
+  0%, 100% { transform: scale(0.96); opacity: 0.45; }
+  50% { transform: scale(1.06); opacity: 0.9; }
+}
+@keyframes loader-route {
+  0% { transform: translateX(-105%); }
+  100% { transform: translateX(245%); }
+}
+@keyframes loader-word-rise {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 .route-dash {

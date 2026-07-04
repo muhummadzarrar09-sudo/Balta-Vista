@@ -249,11 +249,15 @@ function Hero() {
       <div data-hero-layer="0.36" className="absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,transparent_0,rgba(17,19,15,.14)_32%,rgba(17,19,15,.78)_100%)]" />
       <Image data-hero-layer="0.58" src="/assets/hero/hero-forest.svg" alt="Dark pine foreground silhouette" fill priority className="object-cover opacity-[.64]" />
       <div className="hero-vignette absolute inset-0" />
-      <div className="relative z-10 mx-auto max-w-5xl px-5 text-center">
-        <p className="mb-5 text-xs font-semibold uppercase tracking-[0.34em] text-sage">Opening in Nathiagali, KPK</p>
-        <h1 className="hero-title font-serif text-6xl leading-[0.92] text-stone md:text-8xl lg:text-9xl">A quieter kind of luxury above the pines.</h1>
-        <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-stone/78 md:text-xl">A warm, cinematic hill-station retreat shaped for mountain air, winter light, and unhurried stays.</p>
-        <div className="mt-9"><Button asChild size="lg"><a data-track="cta_click" data-track-label="hero_reserve" href="#booking">Reserve the first season</a></Button></div>
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-5 md:px-8">
+        <div className="max-w-5xl text-left">
+          <p className="mb-6 w-fit border-b border-brass/35 pb-3 text-xs font-semibold uppercase tracking-[0.38em] text-sage">Opening in Nathiagali, KPK</p>
+          <h1 className="hero-title font-serif text-[4.35rem] leading-[0.82] tracking-[-0.075em] text-stone md:text-[8.8rem] lg:text-[11.2rem]">A quieter kind of luxury above the pines.</h1>
+          <div className="mt-8 grid max-w-4xl gap-6 md:grid-cols-[1fr_auto] md:items-end">
+            <p className="max-w-2xl text-lg leading-8 text-stone/78 md:text-xl">A warm, cinematic hill-station retreat shaped for mountain air, winter light, and unhurried stays.</p>
+            <Button asChild size="lg" variant="secondary" className="border-brass/35 bg-charcoal/30 text-brass backdrop-blur hover:bg-brass/10"><a data-track="cta_click" data-track-label="hero_reserve" href="/booking">Reserve the first season</a></Button>
+          </div>
+        </div>
       </div>
       <AmbientSoundToggle />
       <div className="absolute bottom-10 left-1/2 z-10 grid -translate-x-1/2 place-items-center gap-3 text-[10px] uppercase tracking-[0.24em] text-stone/55"><span>Scroll</span><span className="block h-14 w-px overflow-hidden bg-stone/16"><span className="block h-5 w-px animate-pulse bg-brass" /></span></div>
@@ -665,7 +669,7 @@ function Location() {
   );
 }
 
-function FAQ() { return <section className="mx-auto max-w-4xl px-5 py-20 md:px-8"><SectionEyebrow>FAQ</SectionEyebrow><SectionTitle>Answers before WhatsApp gets crowded.</SectionTitle><Accordion.Root type="single" collapsible className="mt-10 grid gap-3">{faqs.map(([q,a],i)=><Accordion.Item key={q} value={`item-${i}`} className="rounded-[22px] border border-stone/12 bg-card-gradient px-5"><Accordion.Trigger className="flex w-full items-center justify-between py-5 text-left font-serif text-2xl"><span>{q}</span><ChevronDown className="h-5 w-5 text-brass"/></Accordion.Trigger><Accordion.Content className="pb-5 leading-7 text-muted">{a}</Accordion.Content></Accordion.Item>)}</Accordion.Root></section> }
+function FAQ() { return <section className="mx-auto max-w-4xl px-5 py-20 md:px-8"><SectionEyebrow>FAQ</SectionEyebrow><SectionTitle>Answers before WhatsApp gets crowded.</SectionTitle><Accordion.Root type="single" collapsible className="mt-10 grid gap-3">{faqs.map(([q,a],i)=><Accordion.Item key={q} value={`item-${i}`} className="group rounded-[26px] border border-stone/12 bg-card-gradient px-4 shadow-soft transition data-[state=open]:border-brass/35 data-[state=open]:bg-brass/8"><Accordion.Trigger className="flex w-full items-center justify-between gap-5 py-5 text-left"><span className="flex items-center gap-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-brass/20 bg-brass/10 font-serif text-lg text-brass">{String(i + 1).padStart(2, '0')}</span><span className="font-serif text-2xl leading-tight text-stone">{q}</span></span><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone/10 bg-stone/6 text-brass transition group-data-[state=open]:rotate-180 group-data-[state=open]:border-brass/30 group-data-[state=open]:bg-brass/10"><ChevronDown className="h-4 w-4"/></span></Accordion.Trigger><Accordion.Content className="px-14 pb-6 leading-7 text-muted">{a}</Accordion.Content></Accordion.Item>)}</Accordion.Root></section> }
 
 function LocationTeaser() {
   return (
@@ -1034,5 +1038,12 @@ export default function Home() {
     return () => { roomsTrigger.kill(); document.removeEventListener('click', onTrackClick); document.removeEventListener('click', routeClick); window.removeEventListener('mousemove', move); window.removeEventListener('roomIndex', onRoom); motionCleanups.forEach((cleanup) => cleanup()); splitInstances.forEach((split) => split.revert()); lenis?.destroy(); ScrollTrigger.getAll().forEach(t => t.kill()); };
   }, []);
 
-  return <main id="main-content"><a href="#main-content" className="skip-link">Skip to content</a><HotelJsonLd/><div className="loader-wipe fixed inset-0 z-[80] flex items-center justify-center"><div className="grid place-items-center gap-4"><BrandMark className="h-12 w-12 rounded-full" /><div className="font-serif text-4xl text-brass">Balta Vista</div></div></div><div className="route-wipe fixed inset-0 z-[79] flex items-center justify-center"><div className="font-serif text-4xl text-brass">Balta Vista</div></div><div className="cursor-ring"/><PolishOverlay/><Navigation/><Hero/><ArchitectureTeaser/><RoomsPinned/><Experience/><TrustAndStory/><HomepageBookingTeaser/><LocationTeaser/><Footer/><FloatingWhatsApp/></main>;
+  return <main id="main-content"><a href="#main-content" className="skip-link">Skip to content</a><HotelJsonLd/><div className="loader-wipe fixed inset-0 z-[80] flex items-center justify-center">
+  <div className="grid place-items-center gap-5 px-6 text-center">
+    <div className="brand-loader-mark"><BrandMark className="h-16 w-16 rounded-[24px]" /></div>
+    <div className="loader-word font-serif text-5xl leading-none text-brass md:text-6xl">Balta Vista</div>
+    <p className="text-xs font-semibold uppercase tracking-[0.34em] text-sage">Nathiagali · opening preview</p>
+    <div className="loader-route-line" />
+  </div>
+</div><div className="route-wipe fixed inset-0 z-[79] flex items-center justify-center"><div className="font-serif text-4xl text-brass">Balta Vista</div></div><div className="cursor-ring"/><PolishOverlay/><Navigation/><Hero/><ArchitectureTeaser/><RoomsPinned/><Experience/><TrustAndStory/><HomepageBookingTeaser/><LocationTeaser/><Footer/><FloatingWhatsApp/></main>;
 }

@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { Clock, MapPin, MessageCircle, ShieldCheck } from 'lucide-react';
 import { BookingFlow } from '@/components/booking-flow';
+import { FAQSection } from '@/components/faq-section';
 import { SectionEyebrow, StudioCard } from '@/components/ui';
-import { SubpageFooter, SubpageHeader, SubpageHero } from '@/components/subpage';
+import { EditorialBand, SubpageFooter, SubpageHeader, SubpageHero } from '@/components/subpage';
 import { hotelBaseSchema, jsonLd, siteUrl } from '@/lib/seo';
 
 export const metadata: Metadata = {
@@ -38,6 +39,7 @@ export default function BookingPage() {
       <SubpageHero eyebrow="Reservations" title="A quieter way to ask for opening-season dates.">
         Choose dates, select a room tier, and share guest details. The reservations team confirms availability, route considerations, and next steps directly.
       </SubpageHero>
+      <EditorialBand items={[["Flow", "Dates · Room · Details"], ["Confirmation", "Reservations desk"], ["Reference", "WhatsApp-ready"]]} />
 
       <section className="mx-auto grid max-w-7xl gap-8 px-5 pb-24 md:px-8 lg:grid-cols-[.82fr_1.18fr] lg:items-start">
         <aside className="lg:sticky lg:top-8">
@@ -73,6 +75,7 @@ export default function BookingPage() {
         <BookingFlow />
       </section>
 
+      <FAQSection />
       <SubpageFooter />
     </main>
   );

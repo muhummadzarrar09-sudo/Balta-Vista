@@ -13,7 +13,8 @@
     "guard:no-white": "sh -c '! grep -RInE \"#fff|#ffffff|bg-white|text-white\" app components lib public --exclude-dir=.next 2>/dev/null'",
     "qa:static": "node scripts/qa-static.mjs",
     "qa:runtime": "node scripts/qa-runtime.mjs",
-    "qa:beta": "npm run check && npm run qa:static && npm run qa:runtime"
+    "qa:beta": "npm run check && npm run qa:static && npm run qa:assets && npm run qa:runtime",
+    "qa:assets": "node scripts/qa-assets.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

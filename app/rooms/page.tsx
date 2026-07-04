@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import { Eye, Tv, Wifi, Wind } from 'lucide-react';
 import { Button, SectionEyebrow, StudioCard } from '@/components/ui';
 import { rooms } from '@/lib/site-data';
-import { SubpageCTA, SubpageFooter, SubpageHeader, SubpageHero } from '@/components/subpage';
+import { EditorialBand, SubpageCTA, SubpageFooter, SubpageHeader, SubpageHero } from '@/components/subpage';
 import { hotelBaseSchema, jsonLd, siteUrl } from '@/lib/seo';
 
 export const metadata: Metadata = {
@@ -49,6 +49,7 @@ export default function RoomsPage() {
       <SubpageHero eyebrow="Rooms & Suites" title="Rooms shaped for heated evenings and pine-soft mornings.">
         Each tier is presented as a full-rate opening inquiry, with TV, climate comfort, WiFi, and view-led hospitality as baseline expectations.
       </SubpageHero>
+      <EditorialBand items={[["Room tiers", "Single · Double · Suite"], ["Starting rate", "PKR 85,000"], ["Inquiry style", "Direct reservations"]]} />
 
       <section className="mx-auto grid max-w-7xl gap-6 px-5 pb-20 md:px-8">
         {rooms.map((room, index) => (

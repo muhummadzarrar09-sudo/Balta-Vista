@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SectionEyebrow, StudioCard } from '@/components/ui';
 import { concepts } from '@/lib/site-data';
-import { SubpageCTA, SubpageFooter, SubpageHeader, SubpageHero } from '@/components/subpage';
+import { EditorialBand, SubpageCTA, SubpageFooter, SubpageHeader, SubpageHero } from '@/components/subpage';
 import { jsonLd, siteUrl } from '@/lib/seo';
 
 export const metadata: Metadata = {
@@ -34,6 +34,7 @@ export default function DesignPage() {
       <SubpageHero eyebrow="Architecture" title="Three studies for a mountain hotel in progress.">
         Early directions explore how the property can meet ridge, weather, and view — before final renders and photography arrive.
       </SubpageHero>
+      <EditorialBand items={[["Studies", "Ridge · Courtyard · Deck"], ["Material language", "Stone · Timber · Glass"], ["Design intent", "Weather · View · Arrival"]]} />
       <section className="mx-auto grid max-w-7xl gap-6 px-5 pb-24 md:px-8 md:grid-cols-3">
         {concepts.map((concept) => <StudioCard key={concept.title} className="p-5"><div className="mb-6 h-72 overflow-hidden rounded-[24px] border border-stone/10 bg-charcoal/45"><StudyDrawing /></div><SectionEyebrow>{concept.meta}</SectionEyebrow><h2 className="font-serif text-4xl leading-none">{concept.title}</h2><p className="mt-5 leading-7 text-muted">{concept.text}</p></StudioCard>)}
       </section>

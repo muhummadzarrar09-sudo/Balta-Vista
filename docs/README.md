@@ -33,3 +33,7 @@ This folder keeps handoff, launch, QA, analytics, and security notes out of the 
 - [`launch/booking-webhook.md`](launch/booking-webhook.md) — signed booking webhook integration for Beta workflows.
 
 - [`qa/beta-device-qa.md`](qa/beta-device-qa.md) — Beta cross-browser/device QA plan and automated smoke scripts.
+
+## Art direction
+
+- [`art-direction/final-art-direction.md`](art-direction/final-art-direction.md) — finished-product visual direction, asset replacement slots, and image QA requirements.

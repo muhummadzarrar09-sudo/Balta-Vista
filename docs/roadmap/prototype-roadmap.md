@@ -390,6 +390,9 @@ Launch a real luxury hotel website ready for public traffic, real guests, real i
 
 ## Final Phase A — Final Art Direction
 
+### Status
+Readiness complete — final art-direction standards and asset QA are documented in [`../art-direction/final-art-direction.md`](../art-direction/final-art-direction.md). Actual replacement remains pending real/client-approved imagery.
+
 ### Work
 - Replace all remaining generated images.
 - Add final drone footage or video hero if available.

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { MapPin } from 'lucide-react';
 import { Button, SectionEyebrow, StudioCard } from '@/components/ui';
 import { nearbyPlaces, routeStops } from '@/lib/site-data';
-import { SubpageCTA, SubpageFooter, SubpageHeader, SubpageHero } from '@/components/subpage';
+import { EditorialBand, SubpageCTA, SubpageFooter, SubpageHeader, SubpageHero } from '@/components/subpage';
 import { hotelBaseSchema, jsonLd, siteUrl } from '@/lib/seo';
 
 export const metadata: Metadata = {
@@ -50,6 +50,7 @@ export default function LocationPage() {
       <SubpageHero eyebrow="How to reach us" title="The approach is part of the stay.">
         Travel from Islamabad/Rawalpindi toward Murree and onward to Nathiagali, with winter road conditions confirmed before departure.
       </SubpageHero>
+      <EditorialBand items={[["Approach", "Islamabad / Rawalpindi"], ["Road time", "Approx. 2.5–3.5 hours"], ["Season note", "Confirm winter access"]]} />
 
       <section className="mx-auto grid max-w-7xl gap-8 px-5 pb-24 md:grid-cols-[.82fr_1.18fr] md:px-8">
         <div className="grid gap-4">

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { Button, SectionEyebrow, StudioCard } from '@/components/ui';
 import { experiences, nearbyPlaces } from '@/lib/site-data';
-import { SubpageCTA, SubpageFooter, SubpageHeader, SubpageHero } from '@/components/subpage';
+import { EditorialBand, SubpageCTA, SubpageFooter, SubpageHeader, SubpageHero } from '@/components/subpage';
 import { hotelBaseSchema, jsonLd, siteUrl } from '@/lib/seo';
 
 export const metadata: Metadata = {
@@ -37,6 +37,7 @@ export default function ExperiencePage() {
       <SubpageHero eyebrow="Experience" title="The stay begins with the season outside.">
         Balta Vista is positioned around place — snow, mist, trails, kahwa, bonfire evenings, and the slower rhythm of Nathiagali.
       </SubpageHero>
+      <EditorialBand items={[["Season", "Snow · Green · Ember"], ["Nearby rhythm", "Dunga Gali · Ayubia"], ["Evening mood", "Kahwa · Bonfire · Quiet"]]} />
       <section className="mx-auto max-w-7xl px-5 pb-24 md:px-8">
         <div className="grid gap-6 md:grid-cols-3">
           {experiences.map((item) => (

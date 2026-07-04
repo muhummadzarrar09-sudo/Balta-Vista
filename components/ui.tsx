@@ -33,7 +33,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ classN
 Button.displayName = 'Button';
 
 export function StudioCard({ className, children }: React.PropsWithChildren<{ className?: string }>) {
-  return <div className={cn('studio-card rounded-card border border-stone/12 bg-card-gradient p-5 shadow-soft backdrop-blur-sm', className)}>{children}</div>;
+  return <div className={cn('studio-card editorial-surface rounded-card border border-stone/12 bg-card-gradient p-5 backdrop-blur-sm', className)}>{children}</div>;
 }
 
 export function BrandMark({ className }: { className?: string }) {
