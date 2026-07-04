@@ -704,165 +704,146 @@ const PolishOverlay = memo(function PolishOverlay() {
 });
 
 function LoaderAndInit() {
-  const [ready, setReady] = useState(false);
+  const [showLoader, setShowLoader] = useState(true);
   const initDone = useRef(false);
 
   useEffect(() => {
-    if (initDone.current) return;
-    initDone.current = true;
+    // 1. Hide the loader after 1.5s — pure CSS, no GSAP dependency
+    const hideTimer = setTimeout(() => setShowLoader(false), 1500);
 
-    // Prefetch key routes on idle
+    // 2. Prefetch key routes on idle
     prefetchKeyRoutes();
 
-    // Load GSAP + Lenis + SplitType lazily
-    let gsapPromise: Promise<any>;
-    let cleanup: (() => void) | null = null;
+    // 3. Init GSAP in the background (non-blocking)
+    if (!initDone.current) {
+      initDone.current = true;
+      initAnimations().then((gsap) => {
+        // GSAP loaded — wire up lenis + scroll animations
+        initLenis().then((LenisMod) => {
+          const lenis = new LenisMod({ lerp: 0.08, smoothWheel: true });
+          gsap.ticker.add((time: number) => lenis?.raf(time * 1000));
+          gsap.ticker.lagSmoothing(0);
+        }).catch(() => {});
 
-    async function loadAnimations() {
-      const gsap = await initAnimations();
-      const LenisMod = await initLenis();
-      const SplitTypeMod = await initSplitType();
-
-      const lenis = new LenisMod({ lerp: 0.08, smoothWheel: true });
-      gsap.ticker.add((time: number) => lenis?.raf(time * 1000));
-      gsap.ticker.lagSmoothing(0);
-
-      const heroTitle = document.getElementById('hero-title');
-      const heroSplit = heroTitle ? new SplitTypeMod(heroTitle, { types: 'words' }) : null;
-
-      if (heroSplit?.words?.length) {
-        gsap.set(heroSplit.words, { yPercent: 70, opacity: 0 });
-      }
-
-      // Loader reveal
-      const tl = gsap.timeline({ delay: 0.4 });
-      tl.to('.brand-loader-mark', { scale: 1.12, duration: 0.32, ease: 'power2.out' })
-        .to('.brand-loader-mark', { scale: 1, duration: 0.22, ease: 'back.out(2)' })
-        .to('.loader-word', { yPercent: -10, opacity: 0, duration: 0.28, ease: 'power2.in' }, '-=0.14')
-        .to('.loader-route-line', { scaleX: 0, duration: 0.2, ease: 'power2.in' }, '-=0.14')
-        .to('.brand-loader', { yPercent: -100, duration: 0.5, ease: 'power3.inOut' })
-        .to('.brand-loader', { display: 'none', duration: 0 }, '-=0.1')
-        .to('.route-wipe', { scaleY: 1, duration: 0.38, ease: 'power3.inOut', transformOrigin: 'top center' })
-        .to('.route-wipe', { scaleY: 0, duration: 0.44, ease: 'power3.inOut', transformOrigin: 'bottom center' }, '+=0.06')
-        .to('.route-wipe', { display: 'none', duration: 0 }, '-=0.1');
-
-      // Hero words stagger in
-      if (heroSplit?.words?.length) {
-        tl.to(heroSplit.words, { yPercent: 0, opacity: 1, duration: 0.7, stagger: 0.028, ease: 'power3.out' }, '-=0.2');
-      }
-
-      // Parallax layers
-      gsap.utils.toArray<HTMLElement>('[data-hero-layer]').forEach((layer) => {
-        gsap.to(layer, { yPercent: Number(layer.dataset.heroLayer) * 100, scale: 1.06, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true } });
-      });
-
-      // Reveal animations
-      gsap.utils.toArray<HTMLElement>('.section-eyebrow').forEach((eyebrow) => {
-        gsap.fromTo(eyebrow, { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'power3.out', scrollTrigger: { trigger: eyebrow, start: 'top 88%', once: true } });
-      });
-
-      gsap.utils.toArray<HTMLElement>('[data-card-grid]').forEach((grid) => {
-        const cards = gsap.utils.toArray<HTMLElement>(grid.querySelectorAll('.studio-card'));
-        if (!cards.length) return;
-        gsap.fromTo(cards, { y: 34, autoAlpha: 0.72 }, { y: 0, autoAlpha: 1, duration: 0.8, ease: 'power3.out', stagger: 0.12, scrollTrigger: { trigger: grid, start: 'top 88%', once: true } });
-      });
-
-      gsap.utils.toArray<HTMLElement>('.studio-card').filter((card: HTMLElement) => !card.closest('[data-card-grid]')).forEach((card: HTMLElement) => {
-        gsap.fromTo(card, { y: 34, autoAlpha: 0.72 }, { y: 0, autoAlpha: 1, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 88%', once: true } });
-      });
-
-      gsap.utils.toArray<HTMLElement>('.concept-card').forEach((card) => {
-        gsap.fromTo(card, { y: 40, autoAlpha: 0.6 }, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 88%', once: true } });
-      });
-
-      // Stats
-      gsap.utils.toArray<HTMLElement>('.stat-number').forEach((stat) => {
-        gsap.fromTo(stat, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out', scrollTrigger: { trigger: stat, start: 'top 90%', once: true } });
-      });
-
-      // Pinned rooms
-      const roomsSection = document.querySelector('.rooms-pin');
-      if (roomsSection) {
-        const roomImages = gsap.utils.toArray<HTMLElement>('.room-visual');
-        const roomCopy = gsap.utils.toArray<HTMLElement>('.room-copy');
-        const indicators = roomsSection.querySelectorAll('button');
-        const total = rooms.length;
-
-        ScrollTrigger.create({
-          trigger: roomsSection,
-          start: 'top top',
-          end: `+=${total * 100}%`,
-          pin: true,
-          pinSpacing: true,
-          onUpdate: (self) => {
-            const index = Math.min(total - 1, Math.floor(self.progress * total));
-            window.dispatchEvent(new CustomEvent('roomIndex', { detail: index }));
-          }
-        });
-
-        if (roomImages.length) {
-          roomImages.forEach((img, i) => {
-            ScrollTrigger.create({
-              trigger: roomsSection,
-              start: `top+=${(i / total) * 100}% top`,
-              end: `top+=${((i + 1) / total) * 100}% top`,
-              onEnter: () => {
-                gsap.set(roomImages, { autoAlpha: 0 });
-                gsap.set(roomCopy, { autoAlpha: 0 });
-                gsap.set(roomImages[i], { autoAlpha: 1 });
-                gsap.set(roomCopy[i], { autoAlpha: 1 });
-                indicators.forEach((dot, j) => dot.classList.toggle('bg-brass', j === i));
-              },
-              onEnterBack: () => {
-                gsap.set(roomImages, { autoAlpha: 0 });
-                gsap.set(roomCopy, { autoAlpha: 0 });
-                gsap.set(roomImages[i], { autoAlpha: 1 });
-                gsap.set(roomCopy[i], { autoAlpha: 1 });
-                indicators.forEach((dot, j) => dot.classList.toggle('bg-brass', j === i));
-              }
-            });
-          });
+        // Hero split text
+        const heroTitle = document.getElementById('hero-title');
+        if (heroTitle) {
+          import('split-type').then(({ default: SplitType }) => {
+            const split = new SplitType(heroTitle, { types: 'words' });
+            if (split.words?.length) {
+              gsap.set(split.words, { yPercent: 70, opacity: 0 });
+              gsap.to(split.words, {
+                yPercent: 0, opacity: 1, duration: 0.7,
+                stagger: 0.028, ease: 'power3.out', delay: 0.3,
+              });
+            }
+          }).catch(() => {});
         }
 
-        gsap.set(roomImages.filter((_: HTMLElement, i: number) => i !== 0), { autoAlpha: 0 });
-        gsap.set(roomCopy.filter((_: HTMLElement, i: number) => i !== 0), { autoAlpha: 0 });
-      }
+        // Parallax layers
+        gsap.utils.toArray<HTMLElement>('[data-hero-layer]').forEach((layer) => {
+          gsap.to(layer, {
+            yPercent: Number(layer.dataset.heroLayer) * 100,
+            scale: 1.06, ease: 'none',
+            scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true },
+          });
+        });
 
-      // Progress bar
-      gsap.to('.scroll-progress-bar', { scaleX: 1, ease: 'none', scrollTrigger: { trigger: document.documentElement, start: 'top top', end: 'bottom bottom', scrub: true } });
+        // Reveal animations
+        gsap.utils.toArray<HTMLElement>('.section-eyebrow').forEach((eyebrow) => {
+          gsap.fromTo(eyebrow, { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'power3.out', scrollTrigger: { trigger: eyebrow, start: 'top 88%', once: true } });
+        });
+
+        gsap.utils.toArray<HTMLElement>('[data-card-grid]').forEach((grid) => {
+          const cards = gsap.utils.toArray<HTMLElement>(grid.querySelectorAll('.studio-card'));
+          if (!cards.length) return;
+          gsap.fromTo(cards, { y: 34, autoAlpha: 0.72 }, { y: 0, autoAlpha: 1, duration: 0.8, ease: 'power3.out', stagger: 0.12, scrollTrigger: { trigger: grid, start: 'top 88%', once: true } });
+        });
+
+        gsap.utils.toArray<HTMLElement>('.studio-card').filter((card: HTMLElement) => !card.closest('[data-card-grid]')).forEach((card: HTMLElement) => {
+          gsap.fromTo(card, { y: 34, autoAlpha: 0.72 }, { y: 0, autoAlpha: 1, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 88%', once: true } });
+        });
+
+        gsap.utils.toArray<HTMLElement>('.concept-card').forEach((card) => {
+          gsap.fromTo(card, { y: 40, autoAlpha: 0.6 }, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 88%', once: true } });
+        });
+
+        gsap.utils.toArray<HTMLElement>('.stat-number').forEach((stat) => {
+          gsap.fromTo(stat, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out', scrollTrigger: { trigger: stat, start: 'top 90%', once: true } });
+        });
+
+        // Pinned rooms
+        const roomsSection = document.querySelector('.rooms-pin');
+        if (roomsSection) {
+          import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+            const roomImages = gsap.utils.toArray<HTMLElement>('.room-visual');
+            const roomCopy = gsap.utils.toArray<HTMLElement>('.room-copy');
+            const indicators = roomsSection.querySelectorAll('button');
+            const total = 3;
+
+            ScrollTrigger.create({
+              trigger: roomsSection,
+              start: 'top top',
+              end: `+=${total * 100}%`,
+              pin: true, pinSpacing: true,
+              onUpdate: (self: any) => {
+                const index = Math.min(total - 1, Math.floor(self.progress * total));
+                window.dispatchEvent(new CustomEvent('roomIndex', { detail: index }));
+              }
+            });
+
+            roomImages.forEach((img, i) => {
+              ScrollTrigger.create({
+                trigger: roomsSection,
+                start: `top+=${(i / total) * 100}% top`,
+                end: `top+=${((i + 1) / total) * 100}% top`,
+                onEnter: () => {
+                  gsap.set(roomImages, { autoAlpha: 0 });
+                  gsap.set(roomCopy, { autoAlpha: 0 });
+                  gsap.set(roomImages[i], { autoAlpha: 1 });
+                  gsap.set(roomCopy[i], { autoAlpha: 1 });
+                  indicators.forEach((dot, j) => dot.classList.toggle('bg-brass', j === i));
+                },
+                onEnterBack: () => {
+                  gsap.set(roomImages, { autoAlpha: 0 });
+                  gsap.set(roomCopy, { autoAlpha: 0 });
+                  gsap.set(roomImages[i], { autoAlpha: 1 });
+                  gsap.set(roomCopy[i], { autoAlpha: 1 });
+                  indicators.forEach((dot, j) => dot.classList.toggle('bg-brass', j === i));
+                }
+              });
+            });
+
+            gsap.set(roomImages.filter((_: HTMLElement, i: number) => i !== 0), { autoAlpha: 0 });
+            gsap.set(roomCopy.filter((_: HTMLElement, i: number) => i !== 0), { autoAlpha: 0 });
+          }).catch(() => {});
+        }
+
+        // Progress bar
+        gsap.to('.scroll-progress-bar', { scaleX: 1, ease: 'none', scrollTrigger: { trigger: document.documentElement, start: 'top top', end: 'bottom bottom', scrub: true } });
+      }).catch(() => {
+        // GSAP failed — no problem, site still works without animations
+      });
     }
 
-    loadAnimations()
-      .then(() => setReady(true))
-      .catch(() => {
-        document.querySelector('.brand-loader')?.classList.add('!hidden');
-        document.querySelector('.route-wipe')?.classList.add('!hidden');
-        setReady(true);
-      });
-
-    // Safety fallback: force-hide loader after 8s if animations fail
-    const safetyTimer = setTimeout(() => {
-      const loader = document.querySelector('.brand-loader');
-      const wipe = document.querySelector('.route-wipe');
-      if (loader) loader.classList.add('!hidden');
-      if (wipe) wipe.classList.add('!hidden');
-      setReady(true);
-    }, 8000);
-
-    return () => clearTimeout(safetyTimer);
+    return () => clearTimeout(hideTimer);
   }, []);
 
   return (
     <>
-      <div className="brand-loader fixed inset-0 z-[80] flex items-center justify-center bg-charcoal">
-        <div className="grid place-items-center gap-5 px-6 text-center">
-          <div className="brand-loader-mark"><BrandMark className="h-16 w-16 rounded-[24px]" /></div>
-          <div className="loader-word font-serif text-5xl leading-none text-brass md:text-6xl">Balta Vista</div>
-          <p className="text-xs font-semibold uppercase tracking-[0.34em] text-sage">Nathiagali · opening preview</p>
-          <div className="loader-route-line" />
-        </div>
-      </div>
-      <div className="route-wipe fixed inset-0 z-[79] flex items-center justify-center"><div className="font-serif text-4xl text-brass">Balta Vista</div></div>
+      {showLoader && (
+        <>
+          <div className="brand-loader fixed inset-0 z-[80] flex items-center justify-center bg-charcoal">
+            <div className="grid place-items-center gap-5 px-6 text-center animate-loader-fade">
+              <div className="brand-loader-mark"><BrandMark className="h-16 w-16 rounded-[24px]" /></div>
+              <div className="loader-word font-serif text-5xl leading-none text-brass md:text-6xl">Balta Vista</div>
+              <p className="text-xs font-semibold uppercase tracking-[0.34em] text-sage">Nathiagali · opening preview</p>
+              <div className="loader-route-line" />
+            </div>
+          </div>
+          <div className="route-wipe fixed inset-0 z-[79] flex items-center justify-center"><div className="font-serif text-4xl text-brass">Balta Vista</div></div>
+        </>
+      )}
       <div className="cursor-ring" />
     </>
   );
