@@ -54,7 +54,7 @@ const confidenceSignals = [
 ];
 
 function ConfidenceJsonLd() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://balta-vista-nathiagali.example';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || '';
   const data = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',

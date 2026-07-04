@@ -1,8 +1,8 @@
 export const siteName = 'Balta Vista Nathiagali';
-export const defaultSiteUrl = 'https://balta-vista-nathiagali.example';
+export const defaultSiteUrl = 'https://balta-vista.local';
 
 export function siteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL || defaultSiteUrl;
+  return process.env.NEXT_PUBLIC_SITE_URL || '';
 }
 
 export function jsonLd(data: unknown) {
@@ -16,7 +16,7 @@ export function hotelBaseSchema() {
     '@type': 'Hotel',
     name: siteName,
     url: base,
-    image: `${base}/assets/hero/luxury-hero-nathiagali.png`,
+    image: `${base}/assets/hero/luxury-hero-nathiagali.jpg`,
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Nathiagali',

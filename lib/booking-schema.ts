@@ -7,6 +7,8 @@ export const bookingSchema = z.object({
   name: z.string().trim().min(2, 'Your name is required').max(80),
   email: z.email('Enter a valid email').max(120),
   phone: z.string().trim().min(7, 'Enter a reachable phone number').max(30),
+  city: z.string().trim().max(60).optional().default(''),
+  province: z.enum(['', 'punjab', 'sindh', 'kpk', 'balochistan', 'gb', 'ajk', 'islamabad', 'other']).optional().default(''),
   guests: z.coerce.number().int().min(1).max(8),
   arrivalWindow: z.enum(['morning', 'afternoon', 'evening', 'unsure']).optional().default('unsure'),
   message: z.string().trim().max(500).optional().default(''),

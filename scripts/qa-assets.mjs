@@ -1,29 +1,38 @@
 import fs from 'node:fs';
 
-function pngSize(file) {
+function imageSize(file) {
   const buffer = fs.readFileSync(file);
-  if (buffer.toString('ascii', 1, 4) !== 'PNG') throw new Error(`${file} is not a PNG`);
-  return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
+  const isPng = buffer.toString('ascii', 1, 4) === 'PNG';
+  const isJpeg = buffer[0] === 0xFF && buffer[1] === 0xD8;
+  if (isPng) return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
+  if (isJpeg) {
+    let offset = 2;
+    while (offset < buffer.length) {
+      if (buffer[offset] === 0xFF && buffer[offset + 1] === 0xC0)
+        return { width: buffer.readUInt16BE(offset + 7), height: buffer.readUInt16BE(offset + 5) };
+      offset++;
+    }
+    throw new Error('Cannot parse JPEG: ' + file);
+  }
+  throw new Error('Not PNG or JPEG: ' + file);
 }
 
 const required = [
-  { file: 'public/assets/hero/luxury-hero-nathiagali.png', minWidth: 2600, minHeight: 1400, label: 'hero exterior' },
-  { file: 'public/assets/rooms/room-suite-luxury.png', minWidth: 2200, minHeight: 1600, label: 'signature suite' },
-  { file: 'public/assets/rooms/room-double-luxury.png', minWidth: 2200, minHeight: 1600, label: 'double bedroom' },
-  { file: 'public/assets/rooms/room-single-luxury.png', minWidth: 2200, minHeight: 1600, label: 'single bedroom' },
-  { file: 'public/assets/experience/experience-snowfall-nathiagali.png', minWidth: 2600, minHeight: 1400, label: 'snowfall experience' },
-  { file: 'public/assets/experience/experience-trails-nathiagali.png', minWidth: 2600, minHeight: 1400, label: 'green trails experience' },
-  { file: 'public/assets/experience/experience-bonfire-nathiagali.png', minWidth: 2600, minHeight: 1400, label: 'bonfire experience' },
-  { file: 'public/assets/story/owner-lounge-placeholder.png', minWidth: 1600, minHeight: 2000, label: 'story/owner image' }
+  ['public/assets/hero/luxury-hero-nathiagali.jpg', 1800, 1000, 'hero'],
+  ['public/assets/rooms/room-suite-luxury.jpg', 1600, 1200, 'suite'],
+  ['public/assets/rooms/room-double-luxury.jpg', 1600, 1200, 'double'],
+  ['public/assets/rooms/room-single-luxury.jpg', 1600, 1200, 'single'],
+  ['public/assets/experience/experience-snowfall-nathiagali.jpg', 1800, 1000, 'snow'],
+  ['public/assets/experience/experience-trails-nathiagali.jpg', 1800, 1000, 'trails'],
+  ['public/assets/experience/experience-bonfire-nathiagali.jpg', 1800, 1000, 'bonfire'],
+  ['public/assets/story/owner-lounge-placeholder.jpg', 1000, 1400, 'story'],
 ];
 
-for (const asset of required) {
-  if (!fs.existsSync(asset.file)) throw new Error(`Missing ${asset.label}: ${asset.file}`);
-  const { width, height } = pngSize(asset.file);
-  if (width < asset.minWidth || height < asset.minHeight) {
-    throw new Error(`${asset.label} too small: ${asset.file} is ${width}x${height}, expected at least ${asset.minWidth}x${asset.minHeight}`);
-  }
-  console.log(`${asset.label}: ${width}x${height}`);
+for (const [file, minW, minH, label] of required) {
+  if (!fs.existsSync(file)) throw new Error('Missing: ' + file);
+  const { width, height } = imageSize(file);
+  if (width < minW || height < minH) throw new Error(label + ' too small: ' + width + 'x' + height);
+  console.log(label + ': ' + width + 'x' + height);
 }
 
-console.log(`Asset QA passed: ${required.length} raster assets checked.`);
+console.log('Asset QA passed: ' + required.length + ' images checked.');

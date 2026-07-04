@@ -1,27 +1,17 @@
 import { createHmac } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { bookingSchema, type BookingInput } from '@/lib/booking-schema';
-import { getServerEnv, getSiteUrl } from '@/lib/env';
-import { rateLimit } from '@/lib/rate-limit';
+import { getServerEnv, getSiteUrl, getWhatsAppNumber } from '@/lib/env';
 import { isAllowedOrigin, sanitizeBookingPayload } from '@/lib/security';
+import { createBooking, generateReference } from '@/lib/booking-store';
+import { ROOM_RATES, ROOM_NAMES } from '@/lib/booking-types';
+import { guardRequest, sanitizeInput, validateBookingAmount } from '@/lib/security/request-guard';
+import { checkHoneypot } from '@/lib/security/bot-detector';
+import { logSecurityEvent } from '@/lib/security/auditor';
 
 export const runtime = 'nodejs';
 
-const WINDOW_MS = 60_000;
-const LIMIT = 6;
-const MAX_BODY_BYTES = 12_000;
 const WEBHOOK_TIMEOUT_MS = 3_500;
-
-function clientIp(req: NextRequest) {
-  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'local';
-}
-
-function withRateLimitHeaders(res: NextResponse, result: { remaining: number; resetAt: number }) {
-  res.headers.set('X-RateLimit-Limit', String(LIMIT));
-  res.headers.set('X-RateLimit-Remaining', String(result.remaining));
-  res.headers.set('X-RateLimit-Reset', String(Math.ceil(result.resetAt / 1000)));
-  return res;
-}
 
 function signPayload(payload: string, secret?: string) {
   if (!secret) return undefined;
@@ -41,7 +31,7 @@ async function deliverLead(reference: string, data: BookingInput) {
   });
   const signature = signPayload(payload, BOOKING_WEBHOOK_SECRET || undefined);
   const controller = new AbortController();
-  const timeout = windowlessTimeout(() => controller.abort(), WEBHOOK_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), WEBHOOK_TIMEOUT_MS);
   try {
     const res = await fetch(BOOKING_WEBHOOK_URL, {
       method: 'POST',
@@ -60,40 +50,97 @@ async function deliverLead(reference: string, data: BookingInput) {
   }
 }
 
-function windowlessTimeout(callback: () => void, ms: number) {
-  return setTimeout(callback, ms);
-}
-
 export async function POST(req: NextRequest) {
-  if (!isAllowedOrigin(req.headers.get('origin'), req.headers.get('host'))) {
-    return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 });
-  }
+  // ─── HARDENED: Security guard ───
+  const guard = await guardRequest(req, {
+    validateOrigin: true,
+    blockBots: true,
+    checkTiming: true,
+    rateLimit: { limit: 4, windowMs: 60_000 }, // Max 4 booking submissions per minute
+    maxBodyBytes: 12_000,
+  });
+  if (!guard.passed) return guard.response!;
 
-  const contentLength = Number(req.headers.get('content-length') || 0);
-  if (contentLength > MAX_BODY_BYTES) {
-    return NextResponse.json({ error: 'Request body is too large.' }, { status: 413 });
-  }
-
-  const limit = rateLimit(`booking:${clientIp(req)}`, LIMIT, WINDOW_MS);
-  if (!limit.allowed) {
-    return withRateLimitHeaders(NextResponse.json({ error: 'Too many requests. Please try again shortly.' }, { status: 429 }), limit);
-  }
-
+  // ─── HARDENED: Honeypot check ───
   const body: unknown = await req.json().catch(() => null);
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+
+  // Check honeypot BEFORE parsing
+  if (checkHoneypot(body as Record<string, unknown>, ['companyWebsite', 'website', 'url', 'fax', 'phone2', 'homepage'])) {
+    logSecurityEvent({
+      type: 'honeypot_triggered',
+      ip: guard.ip,
+      method: 'POST',
+      path: '/api/booking',
+      details: 'Honeypot field was filled — blocking submission',
+    });
+    // Return success to not alert the bot, but don't actually save
+    return NextResponse.json({ ok: true, reference: 'HONEYPOT-BLOCKED' });
+  }
+
+  // ─── Parse + Validate ───
   const parsed = bookingSchema.safeParse(body);
   if (!parsed.success) {
-    return withRateLimitHeaders(NextResponse.json({ error: 'Invalid booking inquiry', issues: parsed.error.flatten() }, { status: 400 }), limit);
+    return NextResponse.json({ error: 'Invalid booking inquiry' }, { status: 400 });
   }
 
   const safeData = sanitizeBookingPayload(parsed.data);
-  if (safeData.companyWebsite) return withRateLimitHeaders(NextResponse.json({ ok: true }), limit);
 
-  const reference = `BV-${Date.now().toString(36).toUpperCase()}`;
+  // ─── HARDENED: Server-side amount validation ───
+  // Prevents someone from modifying the room rate in dev console
+  const amountValidation = validateBookingAmount(safeData.room, safeData.checkIn, safeData.checkOut);
+  if (!amountValidation.valid || amountValidation.nights > 30) {
+    logSecurityEvent({
+      type: 'amount_tampering',
+      ip: guard.ip,
+      method: 'POST',
+      path: '/api/booking',
+      details: `Invalid booking: ${safeData.room}, ${safeData.checkIn} → ${safeData.checkOut}, ${amountValidation.nights} nights`,
+    });
+    return NextResponse.json({ error: 'Invalid booking dates' }, { status: 400 });
+  }
+
+  // ─── HARDENED: Sanitize ALL user input before storage ───
+  safeData.name = sanitizeInput(safeData.name, 80);
+  safeData.email = sanitizeInput(safeData.email, 120).toLowerCase();
+  safeData.phone = sanitizeInput(safeData.phone, 30);
+  safeData.message = safeData.message ? sanitizeInput(safeData.message, 500) : '';
+  safeData.arrivalWindow = safeData.arrivalWindow || 'unsure';
+
+  const reference = generateReference();
+  const rate = ROOM_RATES[safeData.room] || 85000;
+  const checkIn = new Date(safeData.checkIn);
+  const checkOut = new Date(safeData.checkOut);
+  const nights = amountValidation.nights;
+
+  // Store booking persistently
+  const booking = createBooking({
+    reference,
+    name: safeData.name,
+    email: safeData.email,
+    phone: safeData.phone,
+    guests: safeData.guests,
+    checkIn: safeData.checkIn,
+    checkOut: safeData.checkOut,
+    room: safeData.room,
+    roomName: ROOM_NAMES[safeData.room] || safeData.room,
+    rate,
+    estimatedNights: nights,
+    estimatedTotal: nights * rate,
+    arrivalWindow: safeData.arrivalWindow,
+    message: safeData.message,
+  });
+
   const delivery = await deliverLead(reference, safeData);
+  const whatsapp = getWhatsAppNumber();
 
-  // Prototype scope: this endpoint validates, sanitizes, origin-checks, size-checks, honeypot-checks, rate-limits,
-  // and optionally forwards the inquiry to a signed server-side webhook. It does not collect payment or create accounts.
-  // Future payment note: when payments are added, use Stripe/hosted checkout so this app never handles raw card data.
-  // If user accounts or persistent booking records are added, introduce Supabase/Postgres with RLS at that point.
-  return withRateLimitHeaders(NextResponse.json({ ok: true, reference, delivery }), limit);
+  return NextResponse.json({
+    ok: true,
+    reference,
+    status: booking.status,
+    whatsapp,
+    delivery,
+  });
 }

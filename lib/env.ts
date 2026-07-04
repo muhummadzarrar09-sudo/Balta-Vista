@@ -40,10 +40,10 @@ export function getServerEnv() {
 
 export function getWhatsAppNumber() {
   const env = getPublicEnv();
-  return env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923001234567';
+  return env.NEXT_PUBLIC_WHATSAPP_NUMBER || '';
 }
 
 export function getSiteUrl() {
   const env = getPublicEnv();
-  return env.NEXT_PUBLIC_SITE_URL || 'https://balta-vista-nathiagali.example';
+  return env.NEXT_PUBLIC_SITE_URL || '';
 }

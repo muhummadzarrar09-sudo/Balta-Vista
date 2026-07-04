@@ -83,6 +83,13 @@ export function SubpageFooter() {
           <Link href="/booking" className="hover:text-brass">Booking</Link>
         </div>
       </div>
+      <div className="mx-auto mt-6 flex max-w-7xl flex-wrap items-center justify-center gap-4 border-t border-stone/8 pt-6 text-xs">
+        <Link href="/privacy" className="font-semibold uppercase tracking-[0.16em] text-muted transition hover:text-brass">Privacy Policy</Link>
+        <span className="text-stone/30">·</span>
+        <Link href="/terms" className="font-semibold uppercase tracking-[0.16em] text-muted transition hover:text-brass">Terms of Service</Link>
+        <span className="text-stone/30">·</span>
+        <Link href="/cancellation" className="font-semibold uppercase tracking-[0.16em] text-muted transition hover:text-brass">Cancellation Policy</Link>
+      </div>
     </footer>
   );
 }

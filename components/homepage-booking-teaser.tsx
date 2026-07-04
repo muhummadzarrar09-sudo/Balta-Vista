@@ -14,7 +14,7 @@ export function HomepageBookingTeaser() {
             <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">The full inquiry flow now has its own quieter space. Choose dates, select a room tier, and let the reservations team confirm availability directly.</p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Button asChild size="lg"><Link href="/booking">Start booking inquiry</Link></Button>
-              <Button asChild variant="secondary" size="lg"><a href="https://wa.me/923001234567?text=Hi%2C%20I%20would%20like%20to%20inquire%20about%20Balta%20Vista%20Nathiagali%20bookings." target="_blank" rel="noreferrer">WhatsApp reservations</a></Button>
+              <Button asChild variant="secondary" size="lg"><a href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || ''}?text=${encodeURIComponent("Hi, I would like to inquire about Balta Vista Nathiagali.")}`} target="_blank" rel="noreferrer">WhatsApp reservations</a></Button>
             </div>
           </div>
           <div className="grid gap-4">

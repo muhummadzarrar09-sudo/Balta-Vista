@@ -214,3 +214,32 @@ input::placeholder, textarea::placeholder { color: rgba(234, 220, 196, 0.45); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; scroll-behavior: auto !important; transition-duration: 0.001ms !important; }
 }
+
+/* ─── Performance optimizations ─── */
+/* Only animate elements when they're in view */
+@media (prefers-reduced-motion: no-preference) {
+  section {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
+  }
+  #hero {
+    content-visibility: visible;
+    contain-intrinsic-size: 1px 760px;
+  }
+}
+
+/* Smooth scrolling with GPU acceleration */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Optimize image rendering */
+img {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reduce layout shifts */
+.studio-card, .concept-card {
+  contain: content;
+}

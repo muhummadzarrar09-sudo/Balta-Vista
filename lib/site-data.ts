@@ -2,7 +2,7 @@ export const rooms = [
   {
     id: 'single' as const,
     name: 'Single Bedroom',
-    image: '/assets/rooms/room-single-luxury.png',
+    image: '/assets/rooms/room-single-luxury.jpg',
     rate: 85000,
     price: 'PKR 85,000 / night',
     short: 'Quiet mountain-facing retreat for solo guests or focused business stays.',
@@ -13,7 +13,7 @@ export const rooms = [
   {
     id: 'double' as const,
     name: 'Double Bedroom',
-    image: '/assets/rooms/room-double-luxury.png',
+    image: '/assets/rooms/room-double-luxury.jpg',
     rate: 105000,
     price: 'PKR 105,000 / night',
     short: 'Generous room for couples or small families, balancing privacy and lounge comfort.',
@@ -24,7 +24,7 @@ export const rooms = [
   {
     id: 'suite' as const,
     name: 'Signature Suite',
-    image: '/assets/rooms/room-suite-luxury.png',
+    image: '/assets/rooms/room-suite-luxury.jpg',
     rate: 165000,
     price: 'PKR 165,000 / night',
     short: 'Flagship suite with cinematic valley window, sitting area, and reserved hosting touches.',
@@ -37,19 +37,19 @@ export const rooms = [
 export const experiences = [
   {
     title: 'Snowfall arrivals',
-    image: '/assets/experience/experience-snowfall-nathiagali.png',
+    image: '/assets/experience/experience-snowfall-nathiagali.jpg',
     text: 'Winter days framed by heated interiors, brass light, and quiet pine-covered slopes.',
     detail: 'Snowfall weekends are designed around warmth: heated rooms, slower arrivals, road-condition guidance, and evenings that feel protected from the weather outside.'
   },
   {
     title: 'Green season trails',
-    image: '/assets/experience/experience-trails-nathiagali.png',
+    image: '/assets/experience/experience-trails-nathiagali.jpg',
     text: 'Step out toward forest walks, ridge viewpoints, and misty monsoon mornings.',
     detail: 'Green season brings soft trails, pine air, and nearby day excursions toward Dunga Gali, Mushkpuri approaches, and Ayubia forest routes.'
   },
   {
     title: 'Bonfire evenings',
-    image: '/assets/experience/experience-bonfire-nathiagali.png',
+    image: '/assets/experience/experience-bonfire-nathiagali.jpg',
     text: 'Slow dinners, local kahwa, ember-lit conversations, and crisp Nathiagali nights.',
     detail: 'Evenings lean into the theatre of the hills: lanterns, embers, blankets, warm service, and a quieter pace after the drive up.'
   }
